@@ -15,11 +15,10 @@
  */
 package org.springframework.data.elasticsearch.core.query;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -41,13 +40,13 @@ public class NativeSearchQueryBuilder {
 	private QueryBuilder filterBuilder;
     private List<ScriptField> scriptFields = new ArrayList<ScriptField>();
 	private List<SortBuilder> sortBuilders = new ArrayList<SortBuilder>();
-	/*private List<FacetRequest> facetRequests = new ArrayList<FacetRequest>();*/
 	private List<AbstractAggregationBuilder> aggregationBuilders = new ArrayList<AbstractAggregationBuilder>();
 	private HighlightBuilder.Field[] highlightFields;
 	private Pageable pageable;
 	private String[] indices;
 	private String[] types;
 	private String[] fields;
+	private SourceFilter sourceFilter;
 	private List<IndexBoost> indicesBoost;
 	private float minScore;
 	private Collection<String> ids;
@@ -114,6 +113,11 @@ public class NativeSearchQueryBuilder {
 		return this;
 	}
 
+	public NativeSearchQueryBuilder withSourceFilter(SourceFilter sourceFilter) {
+				this.sourceFilter = sourceFilter;
+				return this;
+	}
+
 	public NativeSearchQueryBuilder withMinScore(float minScore) {
 		this.minScore = minScore;
 		return this;
@@ -151,20 +155,20 @@ public class NativeSearchQueryBuilder {
 		if (fields != null) {
 			nativeSearchQuery.addFields(fields);
 		}
+
+		if (sourceFilter != null) {
+			nativeSearchQuery.addSourceFilter(sourceFilter);
+		}
 		
 		if(indicesBoost != null) {
 		    nativeSearchQuery.setIndicesBoost(indicesBoost);
 		}
 		
-        if (CollectionUtils.isNotEmpty(scriptFields)) {
+        if (!isEmpty(scriptFields)) {
             nativeSearchQuery.setScriptFields(scriptFields);
         }
 
-/*		if (CollectionUtils.isNotEmpty(facetRequests)) {
-			nativeSearchQuery.setFacets(facetRequests);
-		}*/
-
-		if (CollectionUtils.isNotEmpty(aggregationBuilders)) {
+		if (!isEmpty(aggregationBuilders)) {
 			nativeSearchQuery.setAggregations(aggregationBuilders);
 		}
 
